@@ -1,0 +1,24 @@
+---
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks.git
+    rev: "v3.4.0"
+    hooks:
+      - id: check-merge-conflict
+      - id: check-executables-have-shebangs
+      - id: check-yaml
+      - id: check-xml
+      - id: end-of-file-fixer
+  - repo: https://github.com/chriskuehl/puppet-pre-commit-hooks.git
+    rev: "v2.1.0"
+    hooks:
+      - id: puppet-validate
+      - id: puppet-lint
+        name: "Validate Puppet code style"
+        args:
+          - --no-80chars-check
+          - --no-puppet_url_without_modules-check
+      - id: r10k-validate
+      - id: erb-validate
+      - id: epp-validate
+      - id: ruby-validate
+        name: "Validate Ruby Syntax"
