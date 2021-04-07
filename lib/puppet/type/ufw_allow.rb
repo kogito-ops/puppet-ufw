@@ -3,11 +3,11 @@
 require 'puppet/resource_api'
 
 Puppet::ResourceApi.register_type(
-  name: 'ufw',
+  name: 'ufw_allow',
   docs: <<-EOS,
-@summary a ufw type
+@summary a ufw_allow type
 @example
-ufw { 'foo':
+ufw_allow { 'foo':
   ensure => 'present',
 }
 
@@ -30,5 +30,8 @@ EOS
       desc: 'The name of the resource you want to manage.',
       behaviour: :namevar,
     },
+  },
+  autorequire: {
+    class: 'ufw::install',
   },
 )
