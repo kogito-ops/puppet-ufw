@@ -33,6 +33,7 @@
 # @param [Stdlib::Ensure::Service] service_ensure Defines the state of the ufw service.
 # @param [String[1]] service_name The name of the ufw service to manage.
 # @param [Hash[String[1], Hash]] rules Rule definitions to apply
+# @param [Hash[String[1], Hash]] routes Routing definitions to apply
 #
 class ufw(
   Boolean                    $manage_package = $ufw::params::manage_package,
@@ -42,6 +43,7 @@ class ufw(
   Stdlib::Ensure::Service    $service_ensure = $ufw::params::service_ensure,
   String[1]                  $service_name   = $ufw::params::service_name,
   Hash[String[1], Hash]      $rules          = $ufw::params::rules,
+  Hash[String[1], Hash]      $routes         = $ufw::params::routes,
 ) inherits ufw::params {
   include ::ufw::install
   include ::ufw::service
@@ -49,6 +51,12 @@ class ufw(
   $rules.each | $rule, $rule_values | {
     ufw_rule {$rule:
       * => $rule_values,
+    }
+  }
+
+  $routes.each | $route, $route_values | {
+    ufw_route {$route:
+      * => $route_values,
     }
   }
 

@@ -31,10 +31,10 @@ class ufw::service(
       ensure    => $service_ensure,
     }
     #TODO investigate the reasons behind https://github.com/attachmentgenie/attachmentgenie-ufw/blob/master/manifests/service.pp#L17-L22
-    -> exec { "ufw --force ${action}":
-      path        => '/usr/sbin:/bin',
-      environment => ['DEBIAN_FRONTEND=noninteractive'],
-      unless      => "ufw status | grep 'Status: ${unless_status}'",
-    }
+    # -> exec { "ufw --force ${action}":
+    #   path        => '/usr/sbin:/bin',
+    #   environment => ['DEBIAN_FRONTEND=noninteractive'],
+    #   unless      => "ufw status | grep 'Status: ${unless_status}'",
+    # }
   }
 }

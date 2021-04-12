@@ -148,35 +148,39 @@ RSpec.describe Puppet::Provider::UfwRule::UfwRule do
 
   describe 'rule_to_hash(context, line)' do
     it 'parses line in full syntax' do
-      expect(provider.rule_to_hash(nil, "ufw allow from 10.5.3.0/24 proto gre comment 'test 1'")).to eq({
-                                                                                                          ensure: 'present',
-        name: 'test 1',
-        action: 'allow',
-        direction: 'in',
-        interface: nil,
-        log: nil,
-        from_addr: '10.5.3.0/24',
-        from_ports_app: nil,
-        to_addr: 'any',
-        to_ports_app: nil,
-        proto: 'gre',
-                                                                                                        })
+      expect(provider.rule_to_hash(nil, "ufw allow from 10.5.3.0/24 proto gre comment 'test 1'")).to eq(
+        {
+          ensure: 'present',
+          name: 'test 1',
+          action: 'allow',
+          direction: 'in',
+          interface: nil,
+          log: nil,
+          from_addr: '10.5.3.0/24',
+          from_ports_app: nil,
+          to_addr: 'any',
+          to_ports_app: nil,
+          proto: 'gre',
+        },
+      )
     end
 
     it 'parses line in short syntax' do
-      expect(provider.rule_to_hash(nil, "ufw allow log 555,777/tcp comment 'test 1'")).to eq({
-                                                                                               ensure: 'present',
-        name: 'test 1',
-        action: 'allow',
-        direction: 'in',
-        interface: nil,
-        log: 'log',
-        from_addr: 'any',
-        from_ports_app: nil,
-        to_addr: 'any',
-        to_ports_app: '555,777',
-        proto: 'tcp',
-                                                                                             })
+      expect(provider.rule_to_hash(nil, "ufw allow log 555,777/tcp comment 'test 1'")).to eq(
+        {
+          ensure: 'present',
+          name: 'test 1',
+          action: 'allow',
+          direction: 'in',
+          interface: nil,
+          log: 'log',
+          from_addr: 'any',
+          from_ports_app: nil,
+          to_addr: 'any',
+          to_ports_app: '555,777',
+          proto: 'tcp',
+        },
+      )
     end
   end
 end

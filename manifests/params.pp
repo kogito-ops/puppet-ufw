@@ -11,6 +11,7 @@
 # @param [Stdlib::Ensure::Service] service_ensure Defines the state of the ufw service.
 # @param [String[1]] service_name The name of the ufw service to manage.
 # @param [Hash[String[1], Hash]] rules Rule definitions to apply
+# @param [Hash[String[1], Hash]] routes Routing definitions to apply
 #
 class ufw::params(
   Boolean                         $manage_package    = true,
@@ -20,5 +21,6 @@ class ufw::params(
   Stdlib::Ensure::Service         $service_ensure    = 'running',
   String[1]                       $service_name      = 'ufw',
   Hash[String[1], Hash]           $rules             = {},
+  Hash[String[1], Hash]           $routes            = {},
 ) {
 }
