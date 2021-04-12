@@ -42,6 +42,12 @@ Apply the manifest you'd like to test. This should be executed in the container:
 $ /opt/puppetlabs/bin/puppet apply -e 'ufw { "foo": ensure => "present" }' --debug
 ```
 
+To apply existing manifest inside of the container ([examples/simplerules.pp] in this case):
+
+```shell
+docker cp ./examples/simplerules.pp [container_id]:/test.pp && docker exec -it [container_id] /opt/puppetlabs/bin/puppet apply test.pp --debug --verbose
+```
+
 To remove the container after you have finished the testing:
 
 ```shell
@@ -51,3 +57,4 @@ $ pdk bundle exec rake 'litmus:tear_down'
 [litmus]: https://puppetlabs.github.io/litmus/
 [module requirements]: metadata.json
 [pdk]: https://puppet.com/try-puppet/puppet-development-kit/
+[examples/simplerules.pp]: examples/simplerules.pp

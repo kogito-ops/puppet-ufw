@@ -1,0 +1,78 @@
+# frozen_string_literal: true
+
+require 'puppet/resource_api'
+
+Puppet::ResourceApi.register_type(
+  name: 'ufw_rule',
+  docs: <<-EOS,
+@summary a ufw_rule type
+@example
+ufw_rule { 'foo':
+  ensure => 'present',
+}
+
+This type provides Puppet with the capabilities to manage ...
+
+If your type uses autorequires, please document as shown below, else delete
+these lines.
+**Autorequires**:
+* `Package[foo]`
+EOS
+  features: [],
+  attributes: {
+    ensure: {
+      type: 'Enum[present, absent]',
+      desc: 'Whether this resource should be present or absent on the target system.',
+      default: 'present',
+    },
+    action: {
+      type: 'Enum[allow, deny, reject, limit]',
+      desc: 'Action to perform. default: reject',
+      default: 'reject',
+    },
+    direction: {
+      type: "Enum['in', 'out']", # "in" is too short, puppet can't parse it without quotes
+      desc: 'Traffic direction. default: in',
+      default: 'in',
+    },
+    interface: {
+      type: 'Optional[String]',
+      desc: 'Interface that recieves traffic.',
+    },
+    log: {
+      type: 'Optional[Enum[log, log-all]]',
+      desc: 'Logging option.',
+    },
+    from_addr: {
+      type: 'Optional[Variant[Stdlib::IP::Address, Enum[any]]]',
+      desc: 'Source address. default: any',
+      default: 'any',
+    },
+    from_ports_app: {
+      type: 'Optional[Variant[Integer, String]]',
+      desc: 'Source address ports or app.',
+    },
+    to_addr: {
+      type: 'Optional[Variant[Stdlib::IP::Address, Enum[any]]]',
+      desc: 'Destination address. default: any',
+      default: 'any',
+    },
+    to_ports_app: {
+      type: 'Optional[Variant[Integer, String]]',
+      desc: 'Destination address ports or app.',
+    },
+    proto: {
+      type: 'Optional[String]',
+      desc: 'Protocol. default: any',
+      default: 'any',
+    },
+    name: {
+      type: 'String',
+      desc: 'The name of the resource you want to manage.',
+      behaviour: :namevar,
+    },
+  },
+  autorequire: {
+    class: 'ufw::install',
+  },
+)
