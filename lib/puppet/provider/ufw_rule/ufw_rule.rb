@@ -24,8 +24,11 @@ class Puppet::Provider::UfwRule::UfwRule < Puppet::ResourceApi::SimpleProvider
   end
 
   def get(context)
+    context.debug('Returning list of rules')
+
     @instances = []
     rule_list_lines.each do |line|
+      context.debug(line)
       hash = rule_to_hash(context, line)
       @instances << hash unless hash.nil?
       context.warning("Could not parse existing rule: #{line}") if hash.nil?
@@ -50,8 +53,10 @@ class Puppet::Provider::UfwRule::UfwRule < Puppet::ResourceApi::SimpleProvider
   end
 
   def parse_line_simple_syntax(line)
-    %r{ufw (?<action>allow|deny|reject|limit)\s*(?<direction>in|out)*\s*(?<log>log|log-all)*\s*(?<to_ports_app>[\d,]+)/*(?<proto>\w+)*} =~ line
     %r{\scomment\s'(?<name>[^']+)'} =~ line
+    no_comment = line.sub(%r{\scomment\s'(?<name>[^']+)'}, '')
+
+    %r{ufw (?<action>allow|deny|reject|limit)\s*(?<direction>in|out)*\s*(?<log>log|log-all)*\s*(?<to_ports_app>[\d,]+)/*(?<proto>\w+)*} =~ no_comment
 
     rule = {
       action: action,
@@ -69,11 +74,13 @@ class Puppet::Provider::UfwRule::UfwRule < Puppet::ResourceApi::SimpleProvider
   end
 
   def parse_line_full_syntax(line)
-    %r{ufw (?<action>allow|deny|reject|limit)\s*(?<direction>in|out)*\s*(on\s(?<interface>[\w\d]+))*\s*(?<log>log|log-all)*} =~ line
-    %r{\sfrom\s(?<from_addr>[^\s]+)(\s(port|app)\s(?<from_ports_app>[^\s]+))*} =~ line
-    %r{\sto\s(?<to_addr>[^\s]+)(\s(port|app)\s(?<to_ports_app>[^\s]+))*} =~ line
-    %r{\sproto\s(?<proto>\w+)} =~ line
     %r{\scomment\s'(?<name>[^']+)'} =~ line
+    no_comment = line.sub(%r{\scomment\s'(?<name>[^']+)'}, '')
+
+    %r{ufw (?<action>allow|deny|reject|limit)\s*(?<direction>in|out)*\s*(on\s(?<interface>[\w\d]+))*\s*(?<log>log|log-all)*} =~ no_comment
+    %r{\sfrom\s(?<from_addr>[^\s]+)(\s(port|app)\s(?<from_ports_app>[^\s]+))*} =~ no_comment
+    %r{\sto\s(?<to_addr>[^\s]+)(\s(port|app)\s(?<to_ports_app>[^\s]+))*} =~ no_comment
+    %r{\sproto\s(?<proto>\w+)} =~ no_comment
 
     rule = {
       action: action,
@@ -89,7 +96,7 @@ class Puppet::Provider::UfwRule::UfwRule < Puppet::ResourceApi::SimpleProvider
 
     return nil if rule.empty?
 
-    rule[:name] = name.nil? ? Digest::SHA256.hexdigest(line) : name
+    rule[:name] = name.nil? ? Digest::SHA256.hexdigest(no_comment) : name
 
     @default_rule_hash.merge(rule)
   end
@@ -98,28 +105,31 @@ class Puppet::Provider::UfwRule::UfwRule < Puppet::ResourceApi::SimpleProvider
     interface_definition = rule[:interface].nil? ? nil : "on #{rule[:interface]}"
 
     from_addr = rule[:from_addr].nil? ? 'any' : rule[:from_addr]
-    from_checked = "#{from_addr}:#{rule[:from_ports_app]}"
+    from_checked = "#{from_addr}!#{rule[:from_ports_app]}"
     from_definition = case from_checked
-                      when %r{^any:$}
-                        'from any'
-                      when %r{:\d+$}
+                      when %r{.+!$}
+                        "from #{from_addr}"
+                      when %r{![\d,]+$}
                         "from #{from_addr} port #{rule[:from_ports_app]}"
-                      when %r{:\w+$}
+                      when %r{!\w+$}
                         "from #{from_addr} app #{rule[:from_ports_app]}"
                       end
 
     to_addr = rule[:to_addr].nil? ? 'any' : rule[:to_addr]
-    to_checked = "#{to_addr}:#{rule[:to_ports_app]}"
+    to_checked = "#{to_addr}!#{rule[:to_ports_app]}"
     to_definition = case to_checked
-                    when %r{^any:$}
-                      'to any'
-                    when %r{:\d+$}
+                    when %r{.+!$}
+                      "to #{to_addr}"
+                    when %r{![\d,]+$}
                       "to #{to_addr} port #{rule[:to_ports_app]}"
-                    when %r{:\w+$}
+                    when %r{!\w+$}
                       "to #{to_addr} app #{rule[:to_ports_app]}"
                     end
 
+    uses_app_name = "#{from_definition} #{to_definition}".include? ' app '
+
     proto_definition = rule[:proto].nil? ? nil : "proto #{rule[:proto]}"
+    proto_definition = nil if uses_app_name # Can't use proto with applications
 
     comment_definition = rule[:name].nil? ? nil : "comment \'#{rule[:name]}\'"
 

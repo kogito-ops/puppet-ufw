@@ -28,6 +28,7 @@ RSpec.describe Puppet::Provider::UfwRoute::UfwRoute do
 
   let(:added_routes) do
     <<-UFW_OUTPUT
+    Added user rules (see 'ufw status' for running firewall):
     ufw route allow in on eth0 comment 'example 1'
     ufw route allow in on eth0 from any port 131,132 to 10.0.0.0/24 proto tcp comment 'example 2'
     ufw route deny in on eth0 from any app OpenSSH to 10.5.0.0/24 comment 'example 3'
