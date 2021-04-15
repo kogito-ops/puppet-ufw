@@ -1,6 +1,8 @@
 class {'ufw':
-  # service_ensure => 'stopped',
-  rules          => {
+  #service_ensure         => 'stopped',
+  purge_unmanaged_rules  => true,
+  purge_unmanaged_routes => true,
+  rules                  => {
     'enable incoming to http' => {
       'action'       => 'allow',
       'to_ports_app' => 81,

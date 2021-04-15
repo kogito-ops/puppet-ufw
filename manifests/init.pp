@@ -42,6 +42,10 @@
 #   Rule definitions to apply.
 # @param [Hash[String[1], Hash]] routes
 #   Routing definitions to apply.
+# @param [Boolean] purge_unmanaged_rules
+#   Defines if unmanaged rules should be purged. Default: false
+# @param [Boolean] purge_unmanaged_routes
+#   Defines if unmanaged routes should be purged. Default: false
 # @param [Boolean] manage_default_config
 #   If the module should manage /etc/default/ufw. Default: true
 # @param [String[1]] default_config_content
@@ -84,6 +88,8 @@ class ufw(
   String[1]                  $service_name                = $ufw::params::service_name,
   Hash[String[1], Hash]      $rules                       = $ufw::params::rules,
   Hash[String[1], Hash]      $routes                      = $ufw::params::routes,
+  Boolean                    $purge_unmanaged_rules       = $ufw::params::purge_unmanaged_rules,
+  Boolean                    $purge_unmanaged_routes      = $ufw::params::purge_unmanaged_routes,
   Boolean                    $manage_default_config       = $ufw::params::manage_default_config,
   String[1]                  $default_config_content      = $ufw::params::default_config_content,
   Boolean                    $manage_logrotate_config     = $ufw::params::manage_logrotate_config,
@@ -104,6 +110,18 @@ class ufw(
   include ::ufw::install
   include ::ufw::config
   include ::ufw::service
+
+  if $purge_unmanaged_rules {
+    resources {'ufw_rule':
+      purge => true,
+    }
+  }
+
+  if $purge_unmanaged_routes {
+    resources {'ufw_route':
+      purge => true,
+    }
+  }
 
   $rules.each | $rule, $rule_values | {
     ufw_rule {$rule:

@@ -149,6 +149,10 @@ class Puppet::Provider::UfwRule::UfwRule < Puppet::ResourceApi::SimpleProvider
     rule_to_ufw_params_array(rule).join(' ')
   end
 
+  def rule_to_ufw_params_nocomment(rule)
+    rule_to_ufw_params_array(rule)[0...-1].join(' ')
+  end
+
   def create(context, name, should)
     context.notice("Creating '#{name}' with #{should.inspect}")
     rule = @default_rule_hash.merge(should)
@@ -162,7 +166,7 @@ class Puppet::Provider::UfwRule::UfwRule < Puppet::ResourceApi::SimpleProvider
     is = @instances.find { |r| r[:name] == name }
     rule = @default_rule_hash.merge(is).merge(should)
 
-    is_params = rule_to_ufw_params(is)
+    is_params = rule_to_ufw_params_nocomment(is)
     Puppet::Util::Execution.execute("/usr/sbin/ufw delete #{is_params}", failonfail: true)
 
     params = rule_to_ufw_params(rule)
@@ -173,7 +177,7 @@ class Puppet::Provider::UfwRule::UfwRule < Puppet::ResourceApi::SimpleProvider
     context.notice("Deleting '#{name}'")
 
     is = @instances.find { |r| r[:name] == name }
-    params = rule_to_ufw_params(is)
+    params = rule_to_ufw_params_nocomment(is)
     Puppet::Util::Execution.execute("/usr/sbin/ufw delete #{params}", failonfail: true)
   end
 end

@@ -118,6 +118,10 @@ class Puppet::Provider::UfwRoute::UfwRoute < Puppet::ResourceApi::SimpleProvider
     route_to_ufw_params_array(route).join(' ')
   end
 
+  def rule_to_ufw_params_nocomment(rule)
+    route_to_ufw_params_array(rule)[0...-1].join(' ')
+  end
+
   def create(context, name, should)
     context.notice("Creating '#{name}' with #{should.inspect}")
     route = @default_route_hash.merge(should)
@@ -131,7 +135,7 @@ class Puppet::Provider::UfwRoute::UfwRoute < Puppet::ResourceApi::SimpleProvider
     is = @instances.find { |r| r[:name] == name }
     route = @default_route_hash.merge(is).merge(should)
 
-    is_params = route_to_ufw_params(is)
+    is_params = rule_to_ufw_params_nocomment(is)
     Puppet::Util::Execution.execute("/usr/sbin/ufw route delete #{is_params}", failonfail: true)
 
     params = route_to_ufw_params(route)
@@ -142,7 +146,7 @@ class Puppet::Provider::UfwRoute::UfwRoute < Puppet::ResourceApi::SimpleProvider
     context.notice("Deleting '#{name}'")
 
     is = @instances.find { |r| r[:name] == name }
-    params = route_to_ufw_params(is)
+    params = rule_to_ufw_params_nocomment(is)
     Puppet::Util::Execution.execute("/usr/sbin/ufw route delete #{params}", failonfail: true)
   end
 end

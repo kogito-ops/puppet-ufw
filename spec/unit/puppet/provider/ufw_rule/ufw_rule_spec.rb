@@ -236,7 +236,7 @@ RSpec.describe Puppet::Provider::UfwRule::UfwRule do
 
       expect(executed_commands).to eq(
         [
-          '/usr/sbin/ufw delete allow in from any to any proto any comment \'foo\'',
+          '/usr/sbin/ufw delete allow in from any to any proto any',
           '/usr/sbin/ufw allow in on tun0 from any to any proto any comment \'foo\'',
         ],
       )
@@ -256,7 +256,7 @@ RSpec.describe Puppet::Provider::UfwRule::UfwRule do
 
       provider.delete(context, 'foo')
 
-      expect(executed_commands).to eq(['/usr/sbin/ufw delete allow in from any to any proto any comment \'foo\''])
+      expect(executed_commands).to eq(['/usr/sbin/ufw delete allow in from any to any proto any'])
     end
   end
 

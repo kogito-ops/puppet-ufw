@@ -133,7 +133,7 @@ RSpec.describe Puppet::Provider::UfwRoute::UfwRoute do
 
       expect(executed_commands).to eq(
         [
-          '/usr/sbin/ufw route delete allow in on tun0 out on eth1 from any to any proto any comment \'foo\'',
+          '/usr/sbin/ufw route delete allow in on tun0 out on eth1 from any to any proto any',
           '/usr/sbin/ufw route allow in on tun3 out on eth1 from any to any proto any comment \'foo\'',
         ],
       )
@@ -153,7 +153,7 @@ RSpec.describe Puppet::Provider::UfwRoute::UfwRoute do
 
       provider.delete(context, 'foo')
 
-      expect(executed_commands).to eq(['/usr/sbin/ufw route delete allow in on tun0 out on eth1 from any to any proto any comment \'foo\''])
+      expect(executed_commands).to eq(['/usr/sbin/ufw route delete allow in on tun0 out on eth1 from any to any proto any'])
     end
   end
 
