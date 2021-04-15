@@ -1,11 +1,5 @@
 # ufw
 
-Welcome to your new module. A short overview of the generated parts can be found
-in the [PDK documentation][1].
-
-The README template below provides a starting point with details about what
-information to include in your README.
-
 ## Table of Contents
 
 1. [Description](#description)
@@ -19,99 +13,190 @@ information to include in your README.
 
 ## Description
 
-Briefly tell users why they might want to use your module. Explain what your
-module does and what kind of problems users can solve with it.
-
-This should be a fairly short description helps the user decide if your module
-is what they want.
+The ufw module manages the [uncomplicated firewall][] (ufw). It allows to control
+netfilter rules (via `ufw_rule` resource) and routes (via `ufw_route` resource) as
+well as to manage ufw related configuration files.
 
 ## Setup
 
-### What ufw affects **OPTIONAL**
+### What ufw affects
 
-If it's obvious what your module touches, you can skip this section. For
-example, folks can probably figure out that your mysql_instance module affects
-their MySQL instances.
-
-If there's more that they should know about, though, this is the place to
-mention:
-
-* Files, packages, services, or operations that the module will alter, impact,
-  or execute.
-* Dependencies that your module automatically installs.
-* Warnings or other important notices.
-
-### Setup Requirements **OPTIONAL**
-
-If your module requires anything extra before setting up (pluginsync enabled,
-another module, etc.), mention it here.
-
-If your most recent release breaks compatibility or requires particular steps
-for upgrading, you might want to include an additional "Upgrading" section here.
+* Ufw rule and route settings of managed nodes.
+* Configuration files (`/etc/default/ufw`, `/etc/logrotate.d/ufw`, `/etc/rsyslog.d/20-ufw.conf`, `/etc/ufw/sysctl.conf`).
+* Custom rule files (`after.rules`, `after6.rules`, `before.rules`, `before6.rules`).
+* Purges unmanaged ufw rules (if selected to purge).
+* Purges unmanaged ufw routing rules (if selected to purge).
+* Ufw package and service.
 
 ### Beginning with ufw
 
-The very basic steps needed for a user to get the module up and running. This
-can include setup steps, if necessary, or it can be an example of the most basic
-use of the module.
+The ufw module does not require any specific set up to be used.
 
 ## Usage
 
-Include usage examples for common use cases in the **Usage** section. Show your
-users how to use your module to solve problems, and be sure to include code
-examples. Include three to five examples of the most important or common tasks a
-user can accomplish with your module. Show users how to accomplish more complex
-tasks that involve different types, classes, and functions working in tandem.
+**Warning**: UFW denies incoming traffic by default, so users will be locked-out
+unless you explicitly provide a rule that allows remote management (ssh, etc).
+
+### Basic
+
+```puppet
+class {'ufw':
+  purge_unmanaged_rules  => true,
+  purge_unmanaged_routes => true,
+  rules                  => {
+    'allow ssh connections' => {
+      'action'       => 'allow',
+      'to_ports_app' => 22,
+    },
+  }
+}
+```
+
+### Full
+
+Entries in the `rules` accept the same parameters as `ufw_rule` does.
+
+Entries in the `routes` accept the same parameters as `ufw_route` does.
+
+Addresses support both individual hosts (`10.1.3.1`) and networks (`10.1.3.0/24`)
+in ipv4 and ipv6 formats.
+
+To specify list of ports, separate them with comma without whitespaces: `80,443`
+
+Check [REFERENCE.md][] for the parameter descriptions.
+
+```puppet
+class {'ufw':
+  manage_package           => true,
+  package_name             => 'ufw',
+  packege_ensure           => 'present',
+  manage_service           => 'true',
+  service_name             => 'ufw',
+  service_ensure           => 'running',
+  rules                    => {
+    'sample rule' => {
+      'ensure'         => 'present',
+      'action'         => 'allow',
+      'direction'      => 'out',
+      'interface'      => 'eth0',
+      'log'            => 'log',
+      'from_addr'      => '10.1.3.0/24',
+      'from_ports_app' => 3133,
+      'to_addr'        => '10.3.3.3',
+      'to_ports_app'   => 2122,
+      'proto'          => 'tcp'
+    },
+  },
+  routes                   => {
+    'sample route' => {
+      'ensure'         => 'present',
+      'action'         => 'allow',
+      'interface_in'   => 'any',
+      'interface_out'  => 'any',
+      'log'            => 'log',
+      'from_addr'      => 'any',
+      'from_ports_app' => undef,
+      'to_addr'        => '10.5.0.0/24',
+      'to_ports_app'   => undef,
+      'proto'          => 'any',
+    },
+  },
+  purge_unmanaged_rules    => true,
+  purge_unmanaged_routes   => true,
+  manage_default_config    => true,
+  default_config_content   => file('ufw/default'),
+  manage_logrotate_config  => true,
+  logrotate_config_content => file('ufw/logrotate'),
+  manage_rsyslog_config    => true,
+  rsyslog_config_content   => file('ufw/rsyslog'),
+  manage_sysctl_config     => true,
+  sysctl_config_content    => file('ufw/sysctl'),
+  manage_before_rules      => true,
+  before_rules_content     => file('ufw/before'),
+  manage_before6_rules     => true,
+  before6_rules_content    => file('ufw/before6'),
+  manage_after_rules       => true,
+  after_rules_content      => file('ufw/after'),
+  manage_after6_rules      => true,
+  after6_rules_content     => file('ufw/after6'),
+}
+```
+
+### ufw_rule simple usage
+
+```puppet
+ufw_rule { 'allow ssh':
+  action         => 'allow',
+  to_ports_app   => 22,
+}
+
+ufw_rule { 'allow https on eth1':
+  action         => 'allow',
+  to_ports_app   => 443,
+  interface      => 'eth1'
+}
+```
+
+### ufw_rule usage
+
+`ufw_rule` controls regular, non-routing rules.
+
+**Important**: The default action is `reject` for both `ufw_rule` and `ufw_route`,
+so traffic would be rejected if `action` parameter is omitted.
+
+
+```puppet
+ufw_rule { 'allow ssh from internal networks':
+  ensure         => 'present',
+  action         => 'allow',
+  direction      => 'in',
+  interface      => undef,
+  log            => undef,
+  from_addr      => '10.1.3.0/24',
+  from_ports_app => 'any',
+  to_addr        => '10.3.0.1',
+  to_ports_app   => 22,
+  proto          => 'tcp',
+}
+```
+
+### ufw_route usage
+
+`ufw_route` controls routing rules.
+
+```puppet
+ufw_route { 'route vpn traffic to internal net':
+  ensure         => 'present',
+  action         => 'allow',
+  interface_in   => 'tun0',
+  interface_out  => 'eth0',
+  log            => 'log',
+  from_addr      => 'any',
+  from_ports_app => undef,
+  to_addr        => '10.5.0.0/24',
+  to_ports_app   => undef,
+  proto          => 'any',
+}
+```
 
 ## Reference
 
-This section is deprecated. Instead, add reference information to your code as
-Puppet Strings comments, and then use Strings to generate a REFERENCE.md in your
-module. For details on how to add code comments and generate documentation with
-Strings, see the [Puppet Strings documentation][2] and [style guide][3].
-
-If you aren't ready to use Strings yet, manually create a REFERENCE.md in the
-root of your module directory and list out each of your module's classes,
-defined types, facts, functions, Puppet tasks, task plans, and resource types
-and providers, along with the parameters for each.
-
-For each element (class, defined type, function, and so on), list:
-
-* The data type, if applicable.
-* A description of what the element does.
-* Valid values, if the data type doesn't make it obvious.
-* Default value, if any.
-
-For example:
-
-```
-### `pet::cat`
-
-#### Parameters
-
-##### `meow`
-
-Enables vocalization in your cat. Valid options: 'string'.
-
-Default: 'medium-loud'.
-```
+See [REFERENCE.md][].
 
 ## Limitations
 
-In the Limitations section, list any incompatibilities, known issues, or other
-warnings.
+* The module does not handle ordering. The rules are added in the order they provided.
+* It's possible to update a rule, but the update is performed through recreation which changes ordering.
+* Comment field is used as a rule/route name. Duplicate comments may cause unexpected behavior.
 
-## Development
 
-In the Development section, tell other users the ground rules for contributing
-to your project and how they should submit their work.
+## Development and Contribution
 
-## Release Notes/Contributors/Etc. **Optional**
-
-If you aren't using changelog, put your release notes here (though you should
-consider using changelog). You can also add any additional sections you feel are
-necessary or important to include here. Please use the `##` header.
+See [DEVELOPMENT.md][].
 
 [1]: https://puppet.com/docs/pdk/latest/pdk_generating_modules.html
 [2]: https://puppet.com/docs/puppet/latest/puppet_strings.html
 [3]: https://puppet.com/docs/puppet/latest/puppet_strings_style.html
+[uncomplicated firewall]: https://code.launchpad.net/ufw
+[DEVELOPMENT.md]: DEVELOPMENT.md
+[REFERENCE.md]: REFERENCE.md

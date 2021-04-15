@@ -5,18 +5,28 @@ require 'puppet/resource_api'
 Puppet::ResourceApi.register_type(
   name: 'ufw_rule',
   docs: <<-EOS,
-@summary a ufw_rule type
+@summary a ufw_rule type controls regular rules
 @example
-ufw_rule { 'foo':
-  ensure => 'present',
+ufw_rule { 'allow ssh from internal networks':
+  ensure         => 'present',
+  action         => 'allow',
+  direction      => 'in',
+  interface      => undef,
+  log            => undef,
+  from_addr      => '10.1.3.0/24',
+  from_ports_app => 'any',
+  to_addr        => '10.3.0.1',
+  to_ports_app   => 22,
+  proto          => 'tcp',
 }
 
-This type provides Puppet with the capabilities to manage ...
+This type provides Puppet with the capabilities to manage regular ufw rules.
 
-If your type uses autorequires, please document as shown below, else delete
-these lines.
+**Important**: The default action is `reject`, so traffic would be rejected
+if `action` parameter is omitted.
+
 **Autorequires**:
-* `Package[foo]`
+* `Class[ufw::install]`
 EOS
   features: [],
   attributes: {

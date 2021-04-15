@@ -21,3 +21,14 @@ class {'ufw':
     },
   }
 }
+
+ufw_rule { 'allow ssh from internal networks':
+  action         => 'allow',
+  direction      => 'in',
+  interface      => undef,
+  log            => undef,
+  from_addr      => '10.1.3.0/24',
+  from_ports_app => 'any',
+  to_addr        => '10.3.0.1',
+  to_ports_app   => 22,
+}

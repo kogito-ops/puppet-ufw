@@ -5,18 +5,28 @@ require 'puppet/resource_api'
 Puppet::ResourceApi.register_type(
   name: 'ufw_route',
   docs: <<-EOS,
-@summary a ufw_route type
+@summary a ufw_route type controls routing rules
 @example
-ufw_route { 'foo':
-  ensure => 'present',
+ufw_route { 'route vpn traffic to internal net':
+  ensure         => 'present',
+  action         => 'allow',
+  interface_in   => 'tun0',
+  interface_out  => 'eth0',
+  log            => 'log',
+  from_addr      => 'any',
+  from_ports_app => undef,
+  to_addr        => '10.5.0.0/24',
+  to_ports_app   => undef,
+  proto          => 'any',
 }
 
-This type provides Puppet with the capabilities to manage ...
+This type provides Puppet with the capabilities to manage ufw routing rules.
 
-If your type uses autorequires, please document as shown below, else delete
-these lines.
+**Important**: The default action is `reject`, so traffic would be rejected
+if `action` parameter is omitted.
+
 **Autorequires**:
-* `Package[foo]`
+* `Class[ufw::install]`
 EOS
   features: [],
   attributes: {

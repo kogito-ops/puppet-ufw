@@ -1,12 +1,24 @@
-Development hints
-=
+# Development
 
-Development sandbox
-===
+The ufw module is using [pdk]. To contribute to this module, please go over the following
+checklist and create a pull request after:
 
-The easiest option is to use [pdk] and [litmus]. Refer the documentation of those utilities for advanced use-cases.
+* [ ] `pdk test unit` passes.
+* [ ] `pdk validate` passes. In case of styling violations,
+  `pdk bundle exec rake rubocop:auto_correct` may help.
+* [ ] Examples are updated according to the changes.
+* [ ] Files are documented using [puppet strings syntax][].
+* [ ] [REFERENCE.md][] is updated according to the changes. Command: `pdk bundle exec puppet strings generate --format markdown --out REFERENCE.md`
 
-First, provision a container that complies with the [module requirements]:
+### Development sandbox
+
+One of the challenging tasks during the development is to create an environment
+to quickly test your ideas and thanges. The current section describes an easy way
+of running your module in a sandbox.
+
+The manual relies on [pdk][] and [litmus][]. Refer the documentation of corresponding utility for advanced use-cases.
+
+First, provision a container that complies with the [module requirements][]:
 
 ```shell
 $ pdk bundle exec rake 'litmus:provision[docker, litmusimage/ubuntu:18.04]'
@@ -42,7 +54,7 @@ Apply the manifest you'd like to test. This should be executed in the container:
 $ /opt/puppetlabs/bin/puppet apply -e 'ufw { "foo": ensure => "present" }' --debug
 ```
 
-To apply existing manifest inside of the container ([examples/simplerules.pp] in this case):
+To apply existing manifest inside of the container ([examples/simplerules.pp][] in this case):
 
 ```shell
 docker cp ./examples/simplerules.pp [container_id]:/test.pp && docker exec -it [container_id] /opt/puppetlabs/bin/puppet apply test.pp --debug --verbose
@@ -58,3 +70,5 @@ $ pdk bundle exec rake 'litmus:tear_down'
 [module requirements]: metadata.json
 [pdk]: https://puppet.com/try-puppet/puppet-development-kit/
 [examples/simplerules.pp]: examples/simplerules.pp
+[REFERENCE.md]: REFERENCE.md
+[puppet strings syntax]: https://puppet.com/docs/puppet/latest/puppet_strings_style.html
