@@ -56,7 +56,7 @@ class Puppet::Provider::UfwRule::UfwRule < Puppet::ResourceApi::SimpleProvider
     %r{\scomment\s'(?<name>[^']+)'} =~ line
     no_comment = line.sub(%r{\scomment\s'(?<name>[^']+)'}, '')
 
-    %r{ufw (?<action>allow|deny|reject|limit)\s*(?<direction>in|out)*\s*(?<log>log|log-all)*\s*(?<to_ports_app>[\d,]+)/*(?<proto>\w+)*} =~ no_comment
+    %r{^ufw (?<action>allow|deny|reject|limit)\s*(?<direction>in|out)*\s*(?<log>log|log-all)*\s*(?<to_ports_app>[\w,:]+)/*(?<proto>\w+)*$} =~ no_comment
 
     rule = {
       action: action,
@@ -109,7 +109,7 @@ class Puppet::Provider::UfwRule::UfwRule < Puppet::ResourceApi::SimpleProvider
     from_definition = case from_checked
                       when %r{.+!$}
                         "from #{from_addr}"
-                      when %r{![\d,]+$}
+                      when %r{![\d,:]+$}
                         "from #{from_addr} port #{rule[:from_ports_app]}"
                       when %r{!\w+$}
                         "from #{from_addr} app #{rule[:from_ports_app]}"
@@ -120,7 +120,7 @@ class Puppet::Provider::UfwRule::UfwRule < Puppet::ResourceApi::SimpleProvider
     to_definition = case to_checked
                     when %r{.+!$}
                       "to #{to_addr}"
-                    when %r{![\d,]+$}
+                    when %r{![\d,:]+$}
                       "to #{to_addr} port #{rule[:to_ports_app]}"
                     when %r{!\w+$}
                       "to #{to_addr} app #{rule[:to_ports_app]}"
