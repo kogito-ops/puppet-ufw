@@ -10,32 +10,6 @@ RSpec.describe Puppet::Provider::UfwRule::UfwRule do
 
   let(:context) { instance_double('Puppet::ResourceApi::BaseContext', 'context') }
 
-  # let(:added_rules) do
-  #   <<-UFW_OUTPUT
-
-  #   UFW_OUTPUT
-  # end
-
-  let(:added_rules_simple_syntax) do
-    <<-UFW_OUTPUT
-    Added user rules (see 'ufw status' for running firewall):
-    ufw allow 3133 comment 'port only'
-    ufw deny 8080/tcp comment 'port with proto'
-    ufw allow out 80,443/tcp comment 'list of ports with proto'
-    ufw allow log 555,777/tcp comment 'list of ports with log option and proto'
-    ufw allow out log-all 1111 comment 'log-all with port without proto'
-    UFW_OUTPUT
-  end
-
-  let(:added_rules_full_syntax) do
-    <<-UFW_OUTPUT
-    Added user rules (see 'ufw status' for running firewall):
-    ufw allow out on eth1 log from any port 555,777 to any port 555,777 proto tcp comment 'full example with any'
-    ufw allow in on eth1 from 2001:db8:1234::/48 port 3133 to 2001:db8:1234::/48 port 2122 comment 'full example ipv6'
-    ufw allow to any proto gre comment 'full example proto gre'
-    UFW_OUTPUT
-  end
-
   let(:sample_rule) do
     {
       ensure: 'present',
@@ -52,144 +26,193 @@ RSpec.describe Puppet::Provider::UfwRule::UfwRule do
     }
   end
 
-  before :each do
-    Puppet::Util::ExecutionStub.set do |command, _options|
-      added_rules_full if command == ['/usr/sbin/ufw', 'show', 'added']
-    end
-  end
-
   describe '#get' do
-    it 'processes simple syntax' do
-      Puppet::Util::ExecutionStub.set do |_command, _options|
-        added_rules_simple_syntax
-      end
-      allow(context).to receive(:debug)
+    def self.test_process_syntax(desc, rule, expected)
+      it desc do
+        Puppet::Util::ExecutionStub.set do |_command, _options|
+          rule
+        end
+        allow(context).to receive(:debug)
 
-      expect(provider.get(context)).to eq [
-        {
-          # ufw allow 3133 comment 'port only'
-          ensure: 'present',
-          name: 'port only',
-          action: 'allow',
-          direction: 'in',
-          interface: nil,
-          log: nil,
-          from_addr: 'any',
-          from_ports_app: nil,
-          to_addr: 'any',
-          to_ports_app: '3133',
-          proto: 'any',
-        },
-        {
-          # ufw deny 8080/tcp comment 'port with proto'
-          ensure: 'present',
-          name: 'port with proto',
-          action: 'deny',
-          direction: 'in',
-          interface: nil,
-          log: nil,
-          from_addr: 'any',
-          from_ports_app: nil,
-          to_addr: 'any',
-          to_ports_app: '8080',
-          proto: 'tcp',
-        },
-        {
-          # ufw allow out 80,443/tcp comment 'list of ports with proto'
-          ensure: 'present',
-          name: 'list of ports with proto',
-          action: 'allow',
-          direction: 'out',
-          interface: nil,
-          log: nil,
-          from_addr: 'any',
-          from_ports_app: nil,
-          to_addr: 'any',
-          to_ports_app: '80,443',
-          proto: 'tcp',
-        },
-        {
-          # ufw allow log 555,777/tcp comment 'list of ports with log option and proto'
-          ensure: 'present',
-          name: 'list of ports with log option and proto',
-          action: 'allow',
-          direction: 'in',
-          interface: nil,
-          log: 'log',
-          from_addr: 'any',
-          from_ports_app: nil,
-          to_addr: 'any',
-          to_ports_app: '555,777',
-          proto: 'tcp',
-        },
-        {
-          # ufw allow out log-all 1111 comment 'log-all with port without proto'
-          ensure: 'present',
-          name: 'log-all with port without proto',
-          action: 'allow',
-          direction: 'out',
-          interface: nil,
-          log: 'log-all',
-          from_addr: 'any',
-          from_ports_app: nil,
-          to_addr: 'any',
-          to_ports_app: '1111',
-          proto: 'any',
-        },
-      ]
+        expect(provider.get(context)).to eq(expected)
+      end
     end
 
-    it 'processes full syntax' do
-      Puppet::Util::ExecutionStub.set do |_command, _options|
-        added_rules_full_syntax
-      end
-      allow(context).to receive(:debug)
+    test_process_syntax 'simple port only', "ufw allow 3133 comment 'port only'", [
+      {
+        ensure: 'present',
+        name: 'port only',
+        action: 'allow',
+        direction: 'in',
+        interface: nil,
+        log: nil,
+        from_addr: 'any',
+        from_ports_app: nil,
+        to_addr: 'any',
+        to_ports_app: '3133',
+        proto: 'any',
+      },
+    ]
 
-      expect(provider.get(context)).to eq [
-        {
-          # ufw allow out on eth1 log from any port 555,777 to any port 555,777 proto tcp comment 'full example with any'
-          ensure: 'present',
-          name: 'full example with any',
-          action: 'allow',
-          direction: 'out',
-          interface: 'eth1',
-          log: 'log',
-          from_addr: 'any',
-          from_ports_app: '555,777',
-          to_addr: 'any',
-          to_ports_app: '555,777',
-          proto: 'tcp',
-        },
-        {
-          # ufw allow in on eth1 from 2001:db8:1234::/48 port 3133 to 2001:db8:1234::/48 port 2122 comment 'full example ipv6'
-          ensure: 'present',
-          name: 'full example ipv6',
-          action: 'allow',
-          direction: 'in',
-          interface: 'eth1',
-          log: nil,
-          from_addr: '2001:db8:1234::/48',
-          from_ports_app: '3133',
-          to_addr: '2001:db8:1234::/48',
-          to_ports_app: '2122',
-          proto: 'any',
-        },
-        {
-          # ufw allow to any proto gre comment 'full example proto gre'
-          ensure: 'present',
-          name: 'full example proto gre',
-          action: 'allow',
-          direction: 'in',
-          interface: nil,
-          log: nil,
-          from_addr: 'any',
-          from_ports_app: nil,
-          to_addr: 'any',
-          to_ports_app: nil,
-          proto: 'gre',
-        },
-      ]
-    end
+    test_process_syntax 'simple app only', "ufw allow OpenSSH comment 'app only'", [
+      {
+        ensure: 'present',
+        name: 'app only',
+        action: 'allow',
+        direction: 'in',
+        interface: nil,
+        log: nil,
+        from_addr: 'any',
+        from_ports_app: nil,
+        to_addr: 'any',
+        to_ports_app: 'OpenSSH',
+        proto: 'any',
+      },
+    ]
+
+    test_process_syntax 'simple port with proto', "ufw deny 8080/tcp comment 'port with proto'", [
+      {
+        ensure: 'present',
+        name: 'port with proto',
+        action: 'deny',
+        direction: 'in',
+        interface: nil,
+        log: nil,
+        from_addr: 'any',
+        from_ports_app: nil,
+        to_addr: 'any',
+        to_ports_app: '8080',
+        proto: 'tcp',
+      },
+    ]
+
+    test_process_syntax 'simple port range with proto', "ufw reject 8000:9000/tcp comment 'port range with proto'", [
+      {
+        ensure: 'present',
+        name: 'port range with proto',
+        action: 'reject',
+        direction: 'in',
+        interface: nil,
+        log: nil,
+        from_addr: 'any',
+        from_ports_app: nil,
+        to_addr: 'any',
+        to_ports_app: '8000:9000',
+        proto: 'tcp',
+      },
+    ]
+
+    test_process_syntax 'simple list of ports with proto', "ufw allow out 80,443/tcp comment 'list of ports with proto'", [
+      {
+        ensure: 'present',
+        name: 'list of ports with proto',
+        action: 'allow',
+        direction: 'out',
+        interface: nil,
+        log: nil,
+        from_addr: 'any',
+        from_ports_app: nil,
+        to_addr: 'any',
+        to_ports_app: '80,443',
+        proto: 'tcp',
+      },
+    ]
+
+    test_process_syntax 'simple list of ports with log option and proto', "ufw allow log 555,777/tcp comment 'list of ports with log option and proto'", [
+      {
+        ensure: 'present',
+        name: 'list of ports with log option and proto',
+        action: 'allow',
+        direction: 'in',
+        interface: nil,
+        log: 'log',
+        from_addr: 'any',
+        from_ports_app: nil,
+        to_addr: 'any',
+        to_ports_app: '555,777',
+        proto: 'tcp',
+      },
+    ]
+
+    test_process_syntax 'simple log-all with port without proto', "ufw allow out log-all 1111 comment 'log-all with port without proto'", [
+      {
+        ensure: 'present',
+        name: 'log-all with port without proto',
+        action: 'allow',
+        direction: 'out',
+        interface: nil,
+        log: 'log-all',
+        from_addr: 'any',
+        from_ports_app: nil,
+        to_addr: 'any',
+        to_ports_app: '1111',
+        proto: 'any',
+      },
+    ]
+
+    test_process_syntax 'full example with any', "ufw allow out on eth1 log from any port 555,777 to any port 555,777 proto tcp comment 'full example with any'", [
+      {
+        ensure: 'present',
+        name: 'full example with any',
+        action: 'allow',
+        direction: 'out',
+        interface: 'eth1',
+        log: 'log',
+        from_addr: 'any',
+        from_ports_app: '555,777',
+        to_addr: 'any',
+        to_ports_app: '555,777',
+        proto: 'tcp',
+      },
+    ]
+
+    test_process_syntax 'full example with port range', "ufw allow out on eth1 log from any port 555:777 to any port 777:888 proto tcp comment 'full example with port range'", [
+      {
+        ensure: 'present',
+        name: 'full example with port range',
+        action: 'allow',
+        direction: 'out',
+        interface: 'eth1',
+        log: 'log',
+        from_addr: 'any',
+        from_ports_app: '555:777',
+        to_addr: 'any',
+        to_ports_app: '777:888',
+        proto: 'tcp',
+      },
+    ]
+
+    test_process_syntax 'full example ipv6', "ufw allow in on eth1 from 2001:db8:1234::/48 port 3133 to 2001:db8:1234::/48 port 2122 comment 'full example ipv6'", [
+      {
+        ensure: 'present',
+        name: 'full example ipv6',
+        action: 'allow',
+        direction: 'in',
+        interface: 'eth1',
+        log: nil,
+        from_addr: '2001:db8:1234::/48',
+        from_ports_app: '3133',
+        to_addr: '2001:db8:1234::/48',
+        to_ports_app: '2122',
+        proto: 'any',
+      },
+    ]
+
+    test_process_syntax 'full example proto gre', "ufw allow to any proto gre comment 'full example proto gre'", [
+      {
+        ensure: 'present',
+        name: 'full example proto gre',
+        action: 'allow',
+        direction: 'in',
+        interface: nil,
+        log: nil,
+        from_addr: 'any',
+        from_ports_app: nil,
+        to_addr: 'any',
+        to_ports_app: nil,
+        proto: 'gre',
+      },
+    ]
 
     it 'logs existing lines to debug' do
       Puppet::Util::ExecutionStub.set do |_command, _options|
@@ -429,6 +452,28 @@ RSpec.describe Puppet::Provider::UfwRule::UfwRule do
           'to_ports_app': '8080,8081'
         },
       )).to eq('allow from any to 2606:4700:4700::1111 port 8080,8081')
+    end
+
+    it 'handles port range in from_ports_app' do
+      expect(provider.rule_to_ufw_params(
+        {
+          'action': 'allow',
+          'from_addr': '2606:4700:4700::1111',
+          'from_ports_app': '8080:9000',
+          'proto': 'tcp',
+        },
+      )).to eq('allow from 2606:4700:4700::1111 port 8080:9000 to any proto tcp')
+    end
+
+    it 'handles port range in to_ports_app' do
+      expect(provider.rule_to_ufw_params(
+        {
+          'action': 'allow',
+          'to_addr': '2606:4700:4700::1111',
+          'to_ports_app': '8080:9000',
+          'proto': 'udp',
+        },
+      )).to eq('allow from any to 2606:4700:4700::1111 port 8080:9000 proto udp')
     end
 
     it 'does not add proto when app is specified in from_ports_app or to_ports_app' do
