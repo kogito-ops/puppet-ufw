@@ -78,7 +78,7 @@ class Puppet::Provider::UfwRoute::UfwRoute < Puppet::ResourceApi::SimpleProvider
     from_definition = case from_checked
                       when %r{.+!$}
                         "from #{from_addr}"
-                      when %r{![\d,]+$}
+                      when %r{![\d,:]+$}
                         "from #{from_addr} port #{route[:from_ports_app]}"
                       when %r{!\w+$}
                         "from #{from_addr} app #{route[:from_ports_app]}"
@@ -89,7 +89,7 @@ class Puppet::Provider::UfwRoute::UfwRoute < Puppet::ResourceApi::SimpleProvider
     to_definition = case to_checked
                     when %r{.+!$}
                       "to #{to_addr}"
-                    when %r{![\d,]+$}
+                    when %r{![\d,:]+$}
                       "to #{to_addr} port #{route[:to_ports_app]}"
                     when %r{!\w+$}
                       "to #{to_addr} app #{route[:to_ports_app]}"

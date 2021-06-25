@@ -193,6 +193,24 @@ RSpec.describe Puppet::Provider::UfwRoute::UfwRoute do
         },
       )
     end
+
+    it 'correctly parses routes with port ranges' do
+      expect(provider.route_to_hash(nil, "ufw route allow in on eth0 out on eth2 from 10.1.3.3 port 2020:2030 to 10.3.3.3 port 3030:3040 comment 'test 1'")).to eq(
+        {
+          ensure: 'present',
+          name: 'test 1',
+          action: 'allow',
+          interface_in: 'eth0',
+          interface_out: 'eth2',
+          log: nil,
+          from_addr: '10.1.3.3',
+          from_ports_app: '2020:2030',
+          to_addr: '10.3.3.3',
+          to_ports_app: '3030:3040',
+          proto: 'any',
+        },
+      )
+    end
   end
 
   describe 'route_to_ufw_params(route)' do
@@ -272,7 +290,7 @@ RSpec.describe Puppet::Provider::UfwRoute::UfwRoute do
       expect(provider.route_to_ufw_params({ 'action': 'allow', 'to_addr': '2001:db8:1234::/48', 'to_ports_app': 8080 })).to eq('allow from any to 2001:db8:1234::/48 port 8080')
     end
 
-    it 'handles comma separated ports in from_ports_app' do
+    it 'handles ports list in from_ports_app' do
       expect(provider.route_to_ufw_params(
         {
           'action': 'allow',
@@ -282,7 +300,7 @@ RSpec.describe Puppet::Provider::UfwRoute::UfwRoute do
       )).to eq('allow from 2606:4700:4700::1111 port 8080,8081 to any')
     end
 
-    it 'handles comma separated ports in to_ports_app' do
+    it 'handles ports list in to_ports_app' do
       expect(provider.route_to_ufw_params(
         {
           'action': 'allow',
@@ -290,6 +308,26 @@ RSpec.describe Puppet::Provider::UfwRoute::UfwRoute do
           'to_ports_app': '8080,8081'
         },
       )).to eq('allow from any to 2606:4700:4700::1111 port 8080,8081')
+    end
+
+    it 'handles ports range in from_ports_app' do
+      expect(provider.route_to_ufw_params(
+        {
+          'action': 'allow',
+          'from_addr': '2606:4700:4700::1111',
+          'from_ports_app': '8080:8090'
+        },
+      )).to eq('allow from 2606:4700:4700::1111 port 8080:8090 to any')
+    end
+
+    it 'handles ports range in to_ports_app' do
+      expect(provider.route_to_ufw_params(
+        {
+          'action': 'allow',
+          'to_addr': '2606:4700:4700::1111',
+          'to_ports_app': '8080:8090'
+        },
+      )).to eq('allow from any to 2606:4700:4700::1111 port 8080:8090')
     end
 
     it 'does not add proto when app is specified in from_ports_app or to_ports_app' do
