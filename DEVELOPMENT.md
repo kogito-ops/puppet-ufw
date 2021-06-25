@@ -9,6 +9,12 @@ checklist and create a pull request after:
 * [ ] Examples are updated according to the changes.
 * [ ] Files are documented using [puppet strings syntax][].
 * [ ] [REFERENCE.md][] is updated according to the changes. Command: `pdk bundle exec puppet strings generate --format markdown --out REFERENCE.md`
+* [ ] `pre-commit` command shows no failures.
+
+### Pre-commit
+
+This project uses [pre-commit][] to validate commit contents before it's created.
+Please follow the corresponding documentation on how to setup and use it.
 
 ### Development sandbox
 
@@ -72,3 +78,4 @@ $ pdk bundle exec rake 'litmus:tear_down'
 [examples/simplerules.pp]: examples/simplerules.pp
 [REFERENCE.md]: REFERENCE.md
 [puppet strings syntax]: https://puppet.com/docs/puppet/latest/puppet_strings_style.html
+[pre-commit]: https://pre-commit.com/
