@@ -1,10 +1,10 @@
 {
   "name": "kogitoapp-ufw",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "author": "Kogito UG <hello@kogito.network>",
-  "summary": "",
-  "license": "Apache-2.0",
-  "source": "",
+  "summary": "Puppet UFW Module",
+  "license": "MIT",
+  "source": "https://github.com/kogitoapp/puppet-ufw",
   "dependencies": [
     {
       "name": "puppetlabs/stdlib",
