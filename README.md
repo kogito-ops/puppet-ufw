@@ -17,6 +17,17 @@ The ufw module manages the [uncomplicated firewall][] (ufw). It allows to contro
 netfilter rules (via `ufw_rule` resource) and routes (via `ufw_route` resource) as
 well as to manage ufw related configuration files.
 
+This module succeeds the original [attachmentgenie-ufw][] module that is now deprecated.
+
+The key improvements:
+
+* supports `ufw route`
+* supports ufw framework (`after.rules`, `before.rules`, etc)
+* supports purging unmanaged routes and rules
+
+
+See [limitations](#limitations) for the unsupported functionality.
+
 ## Setup
 
 ### What ufw affects
@@ -30,12 +41,12 @@ well as to manage ufw related configuration files.
 
 ### Beginning with ufw
 
-The ufw module does not require any specific set up to be used.
+The ufw module does not require any specific setup to be used.
 
 ## Usage
 
-**Warning**: UFW denies incoming traffic by default, so users will be locked-out
-unless you explicitly provide a rule that allows remote management (ssh, etc).
+**Warning**: UFW denies incoming traffic by default, so it locks out users unless
+provided a rule that allows remote management (ssh, etc).
 
 ### Basic
 
@@ -61,7 +72,9 @@ Entries in the `routes` accept the same parameters as `ufw_route` does.
 Addresses support both individual hosts (`10.1.3.1`) and networks (`10.1.3.0/24`)
 in ipv4 and ipv6 formats.
 
-To specify list of ports, separate them with comma without whitespaces: `80,443`
+To specify a list of ports, separate them with a comma without whitespaces: `80,443`
+
+To specify a range of ports, separate them by a colon without whitespaces: `8080:8085`
 
 Check [REFERENCE.md][] for the parameter descriptions.
 
@@ -141,8 +154,8 @@ ufw_rule { 'allow https on eth1':
 
 `ufw_rule` controls regular, non-routing rules.
 
-**Important**: The default action is `reject` for both `ufw_rule` and `ufw_route`,
-so traffic would be rejected if `action` parameter is omitted.
+**Important**: The default action is `reject` for both `ufw_rule` and `ufw_route`.
+So the traffic is rejected if `action` parameter is omitted.
 
 
 ```puppet
@@ -200,3 +213,4 @@ See [DEVELOPMENT.md][].
 [uncomplicated firewall]: https://code.launchpad.net/ufw
 [DEVELOPMENT.md]: DEVELOPMENT.md
 [REFERENCE.md]: REFERENCE.md
+[attachmentgenie-ufw]: https://forge.puppet.com/modules/attachmentgenie/ufw
