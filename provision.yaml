@@ -1,0 +1,10 @@
+---
+default:
+  provisioner: docker
+  images:
+  - litmusimage/ubuntu:18.04
+
+docker:
+  provisioner: docker
+  images:
+  - litmusimage/ubuntu:18.04
