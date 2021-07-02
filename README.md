@@ -83,7 +83,7 @@ class {'ufw':
   manage_package           => true,
   package_name             => 'ufw',
   packege_ensure           => 'present',
-  manage_service           => 'true',
+  manage_service           => true,
   service_name             => 'ufw',
   service_ensure           => 'running',
   rules                    => {
@@ -125,13 +125,13 @@ class {'ufw':
   manage_sysctl_config     => true,
   sysctl_config_content    => file('ufw/sysctl'),
   manage_before_rules      => true,
-  before_rules_content     => file('ufw/before'),
+  before_rules_content     => file('ufw/before.rules'),
   manage_before6_rules     => true,
-  before6_rules_content    => file('ufw/before6'),
+  before6_rules_content    => file('ufw/before6.rules'),
   manage_after_rules       => true,
-  after_rules_content      => file('ufw/after'),
+  after_rules_content      => file('ufw/after.rules'),
   manage_after6_rules      => true,
-  after6_rules_content     => file('ufw/after6'),
+  after6_rules_content     => file('ufw/after6.rules'),
 }
 ```
 
