@@ -6,10 +6,10 @@
 1. [Setup - The basics of getting started with ufw](#setup)
     * [What ufw affects](#what-ufw-affects)
     * [Setup requirements](#setup-requirements)
-    * [Beginning with ufw](#beginning-with-ufw)
 1. [Usage - Configuration options and additional functionality](#usage)
 1. [Limitations - OS compatibility, etc.](#limitations)
-1. [Development - Guide for contributing to the module](#development)
+1. [Development - Guide for contributing to the module](#development-and-contribution)
+1. [License](#license)
 
 ## Description
 
@@ -39,7 +39,7 @@ See [limitations](#limitations) for the unsupported functionality.
 * Purges unmanaged ufw routing rules (if selected to purge).
 * Ufw package and service.
 
-### Beginning with ufw
+### Setup requirements
 
 The ufw module does not require any specific setup to be used.
 
@@ -207,6 +207,12 @@ See [REFERENCE.md][].
 
 See [DEVELOPMENT.md][].
 
+
+## License
+
+[MIT][]
+
+
 [1]: https://puppet.com/docs/pdk/latest/pdk_generating_modules.html
 [2]: https://puppet.com/docs/puppet/latest/puppet_strings.html
 [3]: https://puppet.com/docs/puppet/latest/puppet_strings_style.html
@@ -214,3 +220,4 @@ See [DEVELOPMENT.md][].
 [DEVELOPMENT.md]: DEVELOPMENT.md
 [REFERENCE.md]: REFERENCE.md
 [attachmentgenie-ufw]: https://forge.puppet.com/modules/attachmentgenie/ufw
+[MIT]: LICENSE
