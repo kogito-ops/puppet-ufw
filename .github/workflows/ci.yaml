@@ -7,9 +7,8 @@ jobs:
     name: "Setup Test Matrix"
     runs-on: ubuntu-latest
     outputs:
-      beaker_setfiles: ${{ steps.get-outputs.outputs.beaker_setfiles }}
-      puppet_major_versions: ${{ steps.get-outputs.outputs.puppet_major_versions }}
-      puppet_unit_test_matrix: ${{ steps.get-outputs.outputs.puppet_unit_test_matrix }}
+      matrix: ${{ steps.get-outputs.outputs.matrix }}
+      spec_matrix: ${{ steps.get-outputs.outputs.spec_matrix }}
     env:
       BUNDLE_WITHOUT: development:test:release
     steps:
@@ -21,27 +20,45 @@ jobs:
           bundler-cache: true
       - name: Run rake validate
         run: bundle exec rake validate
+
       - name: Setup Test Matrix
         id: get-outputs
-        run: bundle exec metadata2gha --use-fqdn --pidfile-workaround false
+        run: bundle exec matrix_from_metadata_v2
 
   unit:
     needs: setup_matrix
     runs-on: ubuntu-latest
+    if: ${{ needs.setup_matrix.outputs.spec_matrix != '{}' }}
+
     strategy:
       fail-fast: false
-      matrix:
-        include: ${{fromJson(needs.setup_matrix.outputs.puppet_unit_test_matrix)}}
+      matrix: ${{fromJson(needs.setup_matrix.outputs.spec_matrix)}}
+
     env:
-      BUNDLE_WITHOUT: development:system_tests:release
-      PUPPET_VERSION: "~> ${{ matrix.puppet }}.0"
-    name: Puppet ${{ matrix.puppet }} (Ruby ${{ matrix.ruby }})
+      PUPPET_GEM_VERSION: ${{ matrix.puppet_version }}
+      FACTER_GEM_VERSION: 'https://github.com/puppetlabs/facter#main'
+
+    name: "Spec: puppet ${{ matrix.puppet_version }} (ruby ${{ matrix.ruby_version }})"
     steps:
       - uses: actions/checkout@v2
+
       - name: Setup ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: ${{ matrix.ruby }}
+          ruby-version: ${{ matrix.ruby_version }}
           bundler-cache: true
+
       - name: Run tests
         run: bundle exec rake
+
+      - name: Print bundle environment
+        run: |
+          bundle env
+
+      - name: Run Static & Syntax Tests
+        run: |
+          bundle exec rake syntax lint metadata_lint check:symlinks check:git_ignore check:dot_underscore check:test_file rubocop
+
+      - name: Run parallel_spec tests
+        run: |
+          bundle exec rake parallel_spec
