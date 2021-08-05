@@ -84,14 +84,13 @@ describe 'ufw', if: ['debian', 'ubuntu'].include?(os[:family]) do
     end
 
     describe service('ufw') do
-      it { should be_enabled }
-      it { should be_running }
+      it { is_expected.to be_enabled }
+      it { is_expected.to be_running }
     end
 
     describe command('ufw status') do
-      its(:stdout) { should contain('Status: active') }
+      its(:stdout) { is_expected.to contain('Status: active') }
     end
-
   end
 
   context 'with explicit params' do
