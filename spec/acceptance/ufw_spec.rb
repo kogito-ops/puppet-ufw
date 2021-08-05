@@ -4,6 +4,14 @@
 require 'spec_helper_acceptance'
 
 describe 'ufw', if: ['debian', 'ubuntu'].include?(os[:family]) do
+  before(:all) do
+    # Need to disable ipv6 to avoid issues with missing ipv6 on ubuntu on github runners
+    bolt_upload_file(
+      File.expand_path(File.join(__FILE__, '../../fixtures/files/default')),
+      '/etc/puppetlabs/code/environments/production/modules/ufw/files/default',
+    )
+  end
+
   let(:pp) do
     <<-MANIFEST
       include ufw
