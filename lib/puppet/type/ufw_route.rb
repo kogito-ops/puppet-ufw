@@ -7,18 +7,18 @@ Puppet::ResourceApi.register_type(
   docs: <<-EOS,
 @summary a ufw_route type controls routing rules
 @example
-ufw_route { 'route vpn traffic to internal net':
-  ensure         => 'present',
-  action         => 'allow',
-  interface_in   => 'tun0',
-  interface_out  => 'eth0',
-  log            => 'log',
-  from_addr      => 'any',
-  from_ports_app => undef,
-  to_addr        => '10.5.0.0/24',
-  to_ports_app   => undef,
-  proto          => 'any',
-}
+  ufw_route { 'route vpn traffic to internal net':
+    ensure         => 'present',
+    action         => 'allow',
+    interface_in   => 'tun0',
+    interface_out  => 'eth0',
+    log            => 'log',
+    from_addr      => 'any',
+    from_ports_app => undef,
+    to_addr        => '10.5.0.0/24',
+    to_ports_app   => undef,
+    proto          => 'any',
+  }
 
 This type provides Puppet with the capabilities to manage ufw routing rules.
 
@@ -53,7 +53,7 @@ EOS
       desc: 'Logging option.',
     },
     from_addr: {
-      type: 'Optional[Variant[Stdlib::IP::Address, Enum[any]]]',
+      type: 'Optional[String]',
       desc: 'Source address. default: any',
       default: 'any',
     },
@@ -62,7 +62,7 @@ EOS
       desc: 'Source address ports or app.',
     },
     to_addr: {
-      type: 'Optional[Variant[Stdlib::IP::Address, Enum[any]]]',
+      type: 'Optional[String]',
       desc: 'Destination address. default: any',
       default: 'any',
     },

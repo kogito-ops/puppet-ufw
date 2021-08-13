@@ -607,6 +607,19 @@ Default value: `$ufw::service_name`
 
 ### <a name="ufw_route"></a>`ufw_route`
 
+This type provides Puppet with the capabilities to manage ufw routing rules.
+
+**Important**: The default action is `reject`, so traffic would be rejected
+if `action` parameter is omitted.
+
+**Autorequires**:
+* `Class[ufw::install]`
+
+#### Examples
+
+##### 
+
+```puppet
 ufw_route { 'route vpn traffic to internal net':
   ensure         => 'present',
   action         => 'allow',
@@ -619,14 +632,7 @@ ufw_route { 'route vpn traffic to internal net':
   to_ports_app   => undef,
   proto          => 'any',
 }
-
-This type provides Puppet with the capabilities to manage ufw routing rules.
-
-**Important**: The default action is `reject`, so traffic would be rejected
-if `action` parameter is omitted.
-
-**Autorequires**:
-* `Class[ufw::install]`
+```
 
 #### Properties
 
@@ -650,7 +656,7 @@ Default value: `present`
 
 ##### `from_addr`
 
-Data type: `Optional[Variant[Stdlib::IP::Address, Enum[any]]]`
+Data type: `Optional[String]`
 
 Source address. default: any
 
@@ -690,7 +696,7 @@ Default value: `any`
 
 ##### `to_addr`
 
-Data type: `Optional[Variant[Stdlib::IP::Address, Enum[any]]]`
+Data type: `Optional[String]`
 
 Destination address. default: any
 
@@ -718,6 +724,19 @@ The name of the resource you want to manage.
 
 ### <a name="ufw_rule"></a>`ufw_rule`
 
+This type provides Puppet with the capabilities to manage regular ufw rules.
+
+**Important**: The default action is `reject`, so traffic would be rejected
+if `action` parameter is omitted.
+
+**Autorequires**:
+* `Class[ufw::install]`
+
+#### Examples
+
+##### 
+
+```puppet
 ufw_rule { 'allow ssh from internal networks':
   ensure         => 'present',
   action         => 'allow',
@@ -730,14 +749,7 @@ ufw_rule { 'allow ssh from internal networks':
   to_ports_app   => 22,
   proto          => 'tcp',
 }
-
-This type provides Puppet with the capabilities to manage regular ufw rules.
-
-**Important**: The default action is `reject`, so traffic would be rejected
-if `action` parameter is omitted.
-
-**Autorequires**:
-* `Class[ufw::install]`
+```
 
 #### Properties
 
@@ -769,7 +781,7 @@ Default value: `present`
 
 ##### `from_addr`
 
-Data type: `Optional[Variant[Stdlib::IP::Address, Enum[any]]]`
+Data type: `Optional[String]`
 
 Source address. default: any
 
@@ -803,7 +815,7 @@ Default value: `any`
 
 ##### `to_addr`
 
-Data type: `Optional[Variant[Stdlib::IP::Address, Enum[any]]]`
+Data type: `Optional[String]`
 
 Destination address. default: any
 

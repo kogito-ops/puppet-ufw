@@ -7,18 +7,18 @@ Puppet::ResourceApi.register_type(
   docs: <<-EOS,
 @summary a ufw_rule type controls regular rules
 @example
-ufw_rule { 'allow ssh from internal networks':
-  ensure         => 'present',
-  action         => 'allow',
-  direction      => 'in',
-  interface      => undef,
-  log            => undef,
-  from_addr      => '10.1.3.0/24',
-  from_ports_app => 'any',
-  to_addr        => '10.3.0.1',
-  to_ports_app   => 22,
-  proto          => 'tcp',
-}
+  ufw_rule { 'allow ssh from internal networks':
+    ensure         => 'present',
+    action         => 'allow',
+    direction      => 'in',
+    interface      => undef,
+    log            => undef,
+    from_addr      => '10.1.3.0/24',
+    from_ports_app => 'any',
+    to_addr        => '10.3.0.1',
+    to_ports_app   => 22,
+    proto          => 'tcp',
+  }
 
 This type provides Puppet with the capabilities to manage regular ufw rules.
 
@@ -54,7 +54,7 @@ EOS
       desc: 'Logging option.',
     },
     from_addr: {
-      type: 'Optional[Variant[Stdlib::IP::Address, Enum[any]]]',
+      type: 'Optional[String]',
       desc: 'Source address. default: any',
       default: 'any',
     },
@@ -63,7 +63,7 @@ EOS
       desc: 'Source address ports or app.',
     },
     to_addr: {
-      type: 'Optional[Variant[Stdlib::IP::Address, Enum[any]]]',
+      type: 'Optional[String]',
       desc: 'Destination address. default: any',
       default: 'any',
     },
