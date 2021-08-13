@@ -8,7 +8,7 @@
 #   If the class should manage an ufw package.
 # @param [String[1]] package_name
 #   Ufw package to manage.
-# @param [String[1]] packege_ensure
+# @param [String[1]] package_ensure
 #   What state the package should be in.
 # @param [Boolean] manage_service
 #   If the module should manage the ufw service state.
