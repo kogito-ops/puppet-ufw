@@ -1,6 +1,6 @@
 {
   "name": "kogitoapp-ufw",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "author": "Kogito UG <hello@kogito.network>",
   "summary": "Puppet UFW Module",
   "license": "MIT",
