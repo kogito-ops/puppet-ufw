@@ -171,4 +171,6 @@ class ufw(
   Class['ufw::install']
     -> Class['ufw::config']
     -> Class['ufw::service']
+
+  Class['ufw::config'] ~> Class['ufw::service']
 }
