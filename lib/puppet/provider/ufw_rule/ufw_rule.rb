@@ -25,6 +25,7 @@ class Puppet::Provider::UfwRule::UfwRule < Puppet::ResourceApi::SimpleProvider
 
   def get(context)
     context.debug('Returning list of rules')
+    return [] unless ufw_installed?
 
     @instances = []
     rule_list_lines.each do |line|
@@ -179,5 +180,9 @@ class Puppet::Provider::UfwRule::UfwRule < Puppet::ResourceApi::SimpleProvider
     is = @instances.find { |r| r[:name] == name }
     params = rule_to_ufw_params_nocomment(is)
     Puppet::Util::Execution.execute("/usr/sbin/ufw delete #{params}", failonfail: true)
+  end
+
+  def ufw_installed?
+    File.file?('/usr/sbin/ufw')
   end
 end

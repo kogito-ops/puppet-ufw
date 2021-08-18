@@ -23,6 +23,7 @@ class Puppet::Provider::UfwRoute::UfwRoute < Puppet::ResourceApi::SimpleProvider
 
   def get(context)
     context.debug('Returning list of routes')
+    return [] unless ufw_installed?
 
     @instances = []
     route_list_lines.each do |line|
@@ -148,5 +149,9 @@ class Puppet::Provider::UfwRoute::UfwRoute < Puppet::ResourceApi::SimpleProvider
     is = @instances.find { |r| r[:name] == name }
     params = rule_to_ufw_params_nocomment(is)
     Puppet::Util::Execution.execute("/usr/sbin/ufw route delete #{params}", failonfail: true)
+  end
+
+  def ufw_installed?
+    File.file?('/usr/sbin/ufw')
   end
 end
