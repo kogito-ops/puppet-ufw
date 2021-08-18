@@ -3,6 +3,10 @@ class {'ufw':
   purge_unmanaged_rules  => true,
   purge_unmanaged_routes => true,
   rules                  => {
+    'allow ssh connections'   => {
+      'action'       => 'allow',
+      'to_ports_app' => 22,
+    },
     'enable incoming to http' => {
       'action'       => 'allow',
       'to_ports_app' => 81,
@@ -19,7 +23,7 @@ class {'ufw':
       'to_addr'        => '10.3.3.3',
       'to_ports_app'   => 2122,
     },
-  }
+  },
 }
 
 ufw_rule { 'allow ssh from internal networks':
@@ -28,7 +32,7 @@ ufw_rule { 'allow ssh from internal networks':
   interface      => undef,
   log            => undef,
   from_addr      => '10.1.3.0/24',
-  from_ports_app => 'any',
+  from_ports_app => 'OpenSSH',
   to_addr        => '10.3.0.1',
   to_ports_app   => 22,
 }
