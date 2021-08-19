@@ -1,5 +1,6 @@
 # /etc/default/ufw
 #
+# THIS FILE IS MANAGED BY PUPPET. ALL CHANGES WILL BE DISCARDED.
 # THIS IS SPECIAL DEFAULT FILE FOR ACCEPTANCE TESTS
 # The github runners do not support ipv6, so tests might fail for some docker images
 # if we use the standard "default" file.

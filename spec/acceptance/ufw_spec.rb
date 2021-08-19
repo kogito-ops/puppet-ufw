@@ -3,7 +3,7 @@
 # run a test task
 require 'spec_helper_acceptance'
 
-describe 'ufw', if: ['debian', 'ubuntu'].include?(os[:family]) do
+describe 'ufw' do
   before(:all) do
     # Need to disable ipv6 to avoid issues with missing ipv6 on ubuntu on github runners
     bolt_upload_file(
@@ -92,8 +92,10 @@ describe 'ufw', if: ['debian', 'ubuntu'].include?(os[:family]) do
     end
 
     describe service('ufw') do
-      it { is_expected.to be_enabled }
-      it { is_expected.to be_running }
+      it {
+        is_expected.to be_enabled
+        is_expected.to be_running
+      }
     end
 
     describe command('ufw status') do
@@ -106,4 +108,170 @@ describe 'ufw', if: ['debian', 'ubuntu'].include?(os[:family]) do
       idempotent_apply(pp_explicit)
     end
   end
+
+  context 'with purge_unmanaged_rules => true' do
+    let(:manifest) do
+      <<-MANIFEST
+      class {'ufw':
+        purge_unmanaged_rules    => true,
+        rules                    => {
+          'allow ssh' => {
+            'action'         => 'allow',
+            'to_ports_app'   => 22,
+          },
+        }
+      }
+      MANIFEST
+    end
+
+    it 'purges unmanaged rules' do
+      apply_manifest(manifest)
+      run_shell('ufw allow from 10.0.0.0/24 port 111 to 10.0.1.0/24')
+      pre_run_result = run_shell('ufw show added')
+      apply_manifest(manifest)
+
+      expect(pre_run_result.stdout).to match(%r{allow from 10.0.0.0/24 port 111 to 10.0.1.0/24})
+    end
+
+    describe command('ufw show added') do
+      its(:stdout) { is_expected.not_to contain('ufw allow from 10.0.0.0/24 port 111 to 10.0.1.0/24') }
+    end
+  end
+
+  context 'with purge_unmanaged_routes => true' do
+    let(:manifest) do
+      <<-MANIFEST
+      class {'ufw':
+        purge_unmanaged_routes    => true,
+        routes                    => {
+          'sample route' => {
+            'ensure'         => 'present',
+            'action'         => 'allow',
+            'interface_in'   => 'any',
+            'interface_out'  => 'any',
+            'log'            => 'log',
+            'from_addr'      => 'any',
+            'from_ports_app' => undef,
+            'to_addr'        => '10.5.0.0/24',
+            'to_ports_app'   => undef,
+            'proto'          => 'any',
+          },
+        },
+        rules                    => {
+          'allow ssh' => {
+            'action'         => 'allow',
+            'to_ports_app'   => 22,
+          },
+        }
+      }
+      MANIFEST
+    end
+
+    it 'purges unmanaged routes' do
+      apply_manifest(manifest)
+      run_shell('ufw route allow in on eth0 from any port 131:137 to 10.0.0.0/24 proto tcp')
+      pre_run_result = run_shell('ufw show added')
+      apply_manifest(manifest)
+
+      expect(pre_run_result.stdout).to match(%r{ufw route allow in on eth0 from any port 131:137 to 10.0.0.0/24 proto tcp})
+    end
+
+    describe command('ufw show added') do
+      its(:stdout) { is_expected.not_to contain('ufw route allow in on eth0 from any port 131:137 to 10.0.0.0/24 proto tcp') }
+    end
+  end
+
+  def self.test_framework_file(name, file, template)
+    context "installs #{name} from module when no custom provided" do
+      let(:pp) do
+        <<-MANIFEST
+          class {'ufw':
+            service_ensure    => 'stopped',
+            manage_#{name}    => true,
+          }
+          MANIFEST
+      end
+
+      it 'applies' do
+        apply_manifest(pp)
+      end
+
+      describe file(file) do
+        it {
+          is_expected.to be_file
+        }
+        its(:content) do
+          is_expected.to contain 'THIS FILE IS MANAGED BY PUPPET. ALL CHANGES WILL BE DISCARDED.'
+        end
+      end
+    end
+
+    context "installs custom #{name} when provided" do
+      let(:pp) do
+        <<-MANIFEST
+          class {'ufw':
+            service_ensure    => 'stopped',
+            manage_#{name}    => true,
+            #{name}_content   => "${file('#{template}')} # THIS IS TEST CONTENT",
+          }
+          MANIFEST
+      end
+
+      it 'applies' do
+        apply_manifest(pp)
+      end
+
+      describe file(file) do
+        it {
+          is_expected.to be_file
+        }
+        its(:content) do
+          is_expected.to contain '# THIS IS TEST CONTENT'
+        end
+      end
+    end
+
+    context "does not overwrite #{name} if unmanaged" do
+      let(:pp_pre) do
+        <<-MANIFEST
+          class {'ufw':
+            service_ensure => 'stopped',
+          }
+          MANIFEST
+      end
+
+      let(:pp) do
+        <<-MANIFEST
+          class {'ufw':
+            manage_#{name}  => false,
+            #{name}_content => "${file('#{template}')} # THIS IS TEST CONTENT",
+            service_ensure  => 'stopped',
+          }
+          MANIFEST
+      end
+
+      it 'applies' do
+        apply_manifest(pp_pre)
+        apply_manifest(pp)
+      end
+
+      describe file(file) do
+        it {
+          is_expected.to be_file
+        }
+        its(:content) do
+          is_expected.not_to contain '# THIS IS TEST CONTENT'
+        end
+      end
+    end
+  end
+
+  test_framework_file 'default_config', '/etc/default/ufw', 'ufw/default'
+  test_framework_file 'logrotate_config', '/etc/logrotate.d/ufw', 'ufw/logrotate'
+  test_framework_file 'rsyslog_config', '/etc/rsyslog.d/20-ufw.conf', 'ufw/rsyslog'
+  test_framework_file 'sysctl_config', '/etc/ufw/sysctl.conf', 'ufw/sysctl'
+  test_framework_file 'before_rules', '/etc/ufw/before.rules', 'ufw/before.rules'
+  test_framework_file 'before6_rules', '/etc/ufw/before6.rules', 'ufw/before6.rules'
+  test_framework_file 'after_rules', '/etc/ufw/after.rules', 'ufw/after.rules'
+  test_framework_file 'after6_rules', '/etc/ufw/after6.rules', 'ufw/after6.rules'
 end
