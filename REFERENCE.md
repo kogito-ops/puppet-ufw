@@ -22,6 +22,10 @@
 * [`ufw_route`](#ufw_route): a ufw_route type controls routing rules
 * [`ufw_rule`](#ufw_rule): a ufw_rule type controls regular rules
 
+### Data types
+
+* [`Ufw::LogLevel`](#ufwloglevel)
+
 ## Classes
 
 ### <a name="ufw"></a>`ufw`
@@ -71,6 +75,7 @@ class {'ufw':
   },
   purge_unmanaged_rules    => true,
   purge_unmanaged_routes   => true,
+  log_level                => 'low',
   manage_default_config    => true,
   default_config_content   => file('ufw/default'),
   manage_logrotate_config  => true,
@@ -104,6 +109,7 @@ The following parameters are available in the `ufw` class:
 * [`routes`](#routes)
 * [`purge_unmanaged_rules`](#purge_unmanaged_rules)
 * [`purge_unmanaged_routes`](#purge_unmanaged_routes)
+* [`log_level`](#log_level)
 * [`manage_default_config`](#manage_default_config)
 * [`default_config_content`](#default_config_content)
 * [`manage_logrotate_config`](#manage_logrotate_config)
@@ -200,6 +206,14 @@ Data type: `Boolean`
 Defines if unmanaged routes should be purged. Default: false
 
 Default value: `$ufw::params::purge_unmanaged_routes`
+
+##### <a name="log_level"></a>`log_level`
+
+Data type: `Ufw::LogLevel`
+
+Logging level. Default: 'low'
+
+Default value: `$ufw::params::log_level`
 
 ##### <a name="manage_default_config"></a>`manage_default_config`
 
@@ -339,6 +353,7 @@ Manages ufw related configuration files.
 
 ```puppet
 class {'ufw::config':
+  log_level                => 'low',
   manage_default_config    => true,
   default_config_content   => file('ufw/default'),
   manage_logrotate_config  => true,
@@ -362,6 +377,7 @@ class {'ufw::config':
 
 The following parameters are available in the `ufw::config` class:
 
+* [`log_level`](#log_level)
 * [`manage_default_config`](#manage_default_config)
 * [`default_config_content`](#default_config_content)
 * [`manage_logrotate_config`](#manage_logrotate_config)
@@ -378,6 +394,14 @@ The following parameters are available in the `ufw::config` class:
 * [`after_rules_content`](#after_rules_content)
 * [`manage_after6_rules`](#manage_after6_rules)
 * [`after6_rules_content`](#after6_rules_content)
+
+##### <a name="log_level"></a>`log_level`
+
+Data type: `Ufw::LogLevel`
+
+Logging level. Default: 'low'
+
+Default value: `$ufw::log_level`
 
 ##### <a name="manage_default_config"></a>`manage_default_config`
 
@@ -840,3 +864,15 @@ namevar
 Data type: `String`
 
 The name of the resource you want to manage.
+
+## Data types
+
+### <a name="ufwloglevel"></a>`Ufw::LogLevel`
+
+The Ufw::LogLevel data type.
+
+Alias of
+
+```puppet
+Enum['off', 'low', 'medium', 'high', 'full']
+```

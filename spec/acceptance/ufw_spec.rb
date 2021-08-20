@@ -66,6 +66,7 @@ describe 'ufw' do
       },
       purge_unmanaged_rules    => true,
       purge_unmanaged_routes   => true,
+      log_level                => 'high',
       manage_default_config    => true,
       default_config_content   => file('ufw/default'),
       manage_logrotate_config  => true,
@@ -106,6 +107,13 @@ describe 'ufw' do
   context 'with explicit params' do
     it 'applies idempotently' do
       idempotent_apply(pp_explicit)
+    end
+
+    describe command('ufw status verbose') do
+      its(:stdout) do
+        is_expected.to contain('Status: active')
+        is_expected.to contain('Logging: on \(high\)')
+      end
     end
   end
 
