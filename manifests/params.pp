@@ -24,6 +24,8 @@
 #   Defines if unmanaged rules should be purged. Default: false
 # @param [Boolean] purge_unmanaged_routes
 #   Defines if unmanaged routes should be purged. Default: false
+# @param [Ufw::LogLevel] log_level
+#   Logging level. Default: 'low'
 # @param [Boolean] manage_default_config
 #   If the module should manage /etc/default/ufw. Default: true
 # @param [String[1]] default_config_content
@@ -68,6 +70,7 @@ class ufw::params(
   Hash[String[1], Hash]           $routes                      = {},
   Boolean                         $purge_unmanaged_rules       = false,
   Boolean                         $purge_unmanaged_routes      = false,
+  Ufw::LogLevel                   $log_level                   = 'low',
   Boolean                         $manage_default_config       = true,
   String[1]                       $default_config_content      = file('ufw/default'),
   Boolean                         $manage_logrotate_config     = true,

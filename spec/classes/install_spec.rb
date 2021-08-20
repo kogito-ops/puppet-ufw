@@ -8,9 +8,9 @@ describe 'ufw::install' do
       let(:facts) { os_facts }
       let(:params) do
         {
-          'manage_package' => true,
-          'package_name' => 'ufw',
-          'packege_ensure' => 'present',
+          manage_package: true,
+          package_name: 'ufw',
+          packege_ensure: 'present',
         }
       end
 

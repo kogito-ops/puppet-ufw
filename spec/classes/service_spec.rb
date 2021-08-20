@@ -8,9 +8,9 @@ describe 'ufw::service' do
       let(:facts) { os_facts }
       let(:params) do
         {
-          'manage_service' => true,
-          'service_ensure' => 'running',
-          'service_name' => 'ufw',
+          manage_service: true,
+          service_ensure: 'running',
+          service_name: 'ufw',
         }
       end
 
@@ -26,7 +26,7 @@ describe 'ufw::service' do
       context 'with service_ensure => stopped' do
         let(:params) do
           super().merge({
-                          'service_ensure' => 'stopped',
+                          service_ensure: 'stopped',
                         })
         end
 
@@ -41,7 +41,7 @@ describe 'ufw::service' do
       context 'with manage_service => false' do
         let(:params) do
           super().merge({
-                          'manage_service' => false,
+                          manage_service: false,
                         })
         end
 

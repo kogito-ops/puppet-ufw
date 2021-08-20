@@ -4,6 +4,7 @@
 #
 # @example
 #   class {'ufw::config':
+#     log_level                => 'low',
 #     manage_default_config    => true,
 #     default_config_content   => file('ufw/default'),
 #     manage_logrotate_config  => true,
@@ -22,6 +23,8 @@
 #     after6_rules_content     => file('ufw/after.rules'),
 #   }
 #
+# @param [Ufw::LogLevel] log_level
+#   Logging level. Default: 'low'
 # @param [Boolean] manage_default_config
 #   Controls if the module should manage /etc/default/ufw.
 # @param [String[1]] default_config_content
@@ -56,22 +59,23 @@
 #   Configuration content to put to /etc/ufw/after6.rules.
 #
 class ufw::config(
-  Boolean $manage_default_config = $ufw::manage_default_config,
-  String[1] $default_config_content = $ufw::default_config_content,
-  Boolean $manage_logrotate_config = $ufw::manage_logrotate_config,
-  String[1] $logrotate_config_content = $ufw::logrotate_config_content,
-  Boolean $manage_rsyslog_config = $ufw::manage_rsyslog_config,
-  String[1] $rsyslog_config_content = $ufw::rsyslog_config_content,
-  Boolean $manage_sysctl_config = $ufw::manage_sysctl_config,
-  String[1] $sysctl_config_content = $ufw::sysctl_config_content,
-  Boolean $manage_before_rules = $ufw::manage_before_rules,
-  String[1] $before_rules_content = $ufw::before_rules_content,
-  Boolean $manage_before6_rules = $ufw::manage_before6_rules,
-  String[1] $before6_rules_content = $ufw::before6_rules_content,
-  Boolean $manage_after_rules = $ufw::manage_after_rules,
-  String[1] $after_rules_content = $ufw::after_rules_content,
-  Boolean $manage_after6_rules = $ufw::manage_after6_rules,
-  String[1] $after6_rules_content = $ufw::after6_rules_content,
+  Ufw::LogLevel         $log_level                        = $ufw::log_level,
+  Boolean               $manage_default_config            = $ufw::manage_default_config,
+  String[1]             $default_config_content           = $ufw::default_config_content,
+  Boolean               $manage_logrotate_config          = $ufw::manage_logrotate_config,
+  String[1]             $logrotate_config_content         = $ufw::logrotate_config_content,
+  Boolean               $manage_rsyslog_config            = $ufw::manage_rsyslog_config,
+  String[1]             $rsyslog_config_content           = $ufw::rsyslog_config_content,
+  Boolean               $manage_sysctl_config             = $ufw::manage_sysctl_config,
+  String[1]             $sysctl_config_content            = $ufw::sysctl_config_content,
+  Boolean               $manage_before_rules              = $ufw::manage_before_rules,
+  String[1]             $before_rules_content             = $ufw::before_rules_content,
+  Boolean               $manage_before6_rules             = $ufw::manage_before6_rules,
+  String[1]             $before6_rules_content            = $ufw::before6_rules_content,
+  Boolean               $manage_after_rules               = $ufw::manage_after_rules,
+  String[1]             $after_rules_content              = $ufw::after_rules_content,
+  Boolean               $manage_after6_rules              = $ufw::manage_after6_rules,
+  String[1]             $after6_rules_content             = $ufw::after6_rules_content,
 ) {
   if $manage_default_config {
     file {'/etc/default/ufw':
@@ -127,5 +131,12 @@ class ufw::config(
       path    => '/etc/ufw/after6.rules',
       content => $after6_rules_content,
     }
+  }
+
+  file_line { 'loglevel':
+    ensure => present,
+    path   => '/etc/ufw/ufw.conf',
+    line   => "LOGLEVEL=${log_level}",
+    match  => '^LOGLEVEL\=',
   }
 }
