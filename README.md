@@ -116,6 +116,7 @@ class {'ufw':
   },
   purge_unmanaged_rules    => true,
   purge_unmanaged_routes   => true,
+  log_level                => 'low',
   manage_default_config    => true,
   default_config_content   => file('ufw/default'),
   manage_logrotate_config  => true,
