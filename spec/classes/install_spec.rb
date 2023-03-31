@@ -10,7 +10,7 @@ describe 'ufw::install' do
         {
           manage_package: true,
           package_name: 'ufw',
-          packege_ensure: 'present',
+          package_ensure: 'present',
         }
       end
 

@@ -19,7 +19,7 @@ describe 'ufw::install' do
         class {'ufw::install':
           manage_package => true,
           package_name => 'ufw',
-          packege_ensure => 'present',
+          package_ensure => 'present',
         }
         MANIFEST
       end
@@ -39,7 +39,7 @@ describe 'ufw::install' do
         class {'ufw::install':
           manage_package => true,
           package_name => 'ufw',
-          packege_ensure => 'absent',
+          package_ensure => 'absent',
         }
         MANIFEST
       end
@@ -60,7 +60,7 @@ describe 'ufw::install' do
       class {'ufw::install':
         manage_package => false,
         package_name => 'ufw',
-        packege_ensure => 'present',
+        package_ensure => 'present',
       }
       MANIFEST
     end
