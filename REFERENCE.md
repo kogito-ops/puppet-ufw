@@ -41,7 +41,7 @@ It also applies firewall rules.
 class {'ufw':
   manage_package           => true,
   package_name             => 'ufw',
-  packege_ensure           => 'present',
+  package_ensure           => 'present',
   manage_service           => 'true',
   service_name             => 'ufw',
   service_ensure           => 'running',
@@ -101,7 +101,7 @@ The following parameters are available in the `ufw` class:
 
 * [`manage_package`](#manage_package)
 * [`package_name`](#package_name)
-* [`packege_ensure`](#packege_ensure)
+* [`package_ensure`](#package_ensure)
 * [`manage_service`](#manage_service)
 * [`service_ensure`](#service_ensure)
 * [`service_name`](#service_name)
@@ -143,7 +143,7 @@ Ufw package to manage.
 
 Default value: `$ufw::params::package_name`
 
-##### <a name="packege_ensure"></a>`packege_ensure`
+##### <a name="package_ensure"></a>`package_ensure`
 
 Data type: `String[1]`
 
@@ -543,7 +543,7 @@ This class manages ufw package installation.
 class {'ufw::install':
   manage_package => true,
   package_name   => 'ufw',
-  packege_ensure => 'present',
+  package_ensure => 'present',
 }
 ```
 
@@ -553,7 +553,7 @@ The following parameters are available in the `ufw::install` class:
 
 * [`manage_package`](#manage_package)
 * [`package_name`](#package_name)
-* [`packege_ensure`](#packege_ensure)
+* [`package_ensure`](#package_ensure)
 
 ##### <a name="manage_package"></a>`manage_package`
 
@@ -571,13 +571,13 @@ Ufw package to manage.
 
 Default value: `$ufw::package_name`
 
-##### <a name="packege_ensure"></a>`packege_ensure`
+##### <a name="package_ensure"></a>`package_ensure`
 
 Data type: `String[1]`
 
 What state the package should be in.
 
-Default value: `$ufw::packege_ensure`
+Default value: `$ufw::package_ensure`
 
 ### <a name="ufwservice"></a>`ufw::service`
 

@@ -28,7 +28,7 @@ describe 'ufw' do
     class {'ufw':
       manage_package           => true,
       package_name             => 'ufw',
-      packege_ensure           => 'present',
+      package_ensure           => 'present',
       manage_service           => true,
       service_name             => 'ufw',
       service_ensure           => 'running',

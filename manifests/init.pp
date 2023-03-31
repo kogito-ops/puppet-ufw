@@ -7,7 +7,7 @@
 #  class {'ufw':
 #    manage_package           => true,
 #    package_name             => 'ufw',
-#    packege_ensure           => 'present',
+#    package_ensure           => 'present',
 #    manage_service           => 'true',
 #    service_name             => 'ufw',
 #    service_ensure           => 'running',
@@ -64,7 +64,7 @@
 #   If the class should manage an ufw package.
 # @param [String[1]] package_name
 #   Ufw package to manage.
-# @param [String[1]] packege_ensure
+# @param [String[1]] package_ensure
 #   What state the package should be in.
 # @param [Boolean] manage_service
 #   If the module should manage the ufw service state.
@@ -118,7 +118,7 @@
 class ufw(
   Boolean                    $manage_package              = $ufw::params::manage_package,
   String[1]                  $package_name                = $ufw::params::package_name,
-  String[1]                  $packege_ensure              = $ufw::params::package_ensure,
+  String[1]                  $package_ensure              = $ufw::params::package_ensure,
   Boolean                    $manage_service              = $ufw::params::manage_service,
   Stdlib::Ensure::Service    $service_ensure              = $ufw::params::service_ensure,
   String[1]                  $service_name                = $ufw::params::service_name,
