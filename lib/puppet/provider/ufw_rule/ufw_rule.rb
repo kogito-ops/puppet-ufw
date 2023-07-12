@@ -78,7 +78,7 @@ class Puppet::Provider::UfwRule::UfwRule < Puppet::ResourceApi::SimpleProvider
     %r{\scomment\s'(?<name>[^']+)'} =~ line
     no_comment = line.sub(%r{\scomment\s'(?<name>[^']+)'}, '')
 
-    %r{ufw (?<action>allow|deny|reject|limit)\s*(?<direction>in|out)*\s*(on\s(?<interface>[\w\d]+))*\s*(?<log>log|log-all)*} =~ no_comment
+    %r{ufw (?<action>allow|deny|reject|limit)\s*(?<direction>in|out)*\s*(on\s(?<interface>[\w\d\+]+))*\s*(?<log>log|log-all)*} =~ no_comment
     %r{\sfrom\s(?<from_addr>[^\s]+)(\s(port|app)\s(?<from_ports_app>[^\s]+))*} =~ no_comment
     %r{\sto\s(?<to_addr>[^\s]+)(\s(port|app)\s(?<to_ports_app>[^\s]+))*} =~ no_comment
     %r{\sproto\s(?<proto>\w+)} =~ no_comment
